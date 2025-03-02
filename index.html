@@ -1,0 +1,98 @@
+html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Auto-Scroll Bookmarklet</title>
+    <style>
+        body {
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+        }
+        .instructions {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            background: #0070f3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .btn:active {
+            background: #0050c3;
+        }
+        code {
+            display: block;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Auto-Scroll Helper</h1>
+    
+    <div class="instructions">
+        <p>Since iOS Safari restricts JavaScript bookmarklets, use this page to activate auto-scrolling:</p>
+        <ol>
+            <li>Tap the button below to copy the auto-scroll code</li>
+            <li>Go to the article you want to read</li>
+            <li>Tap in the Safari address bar</li>
+            <li>Paste the code and tap Go</li>
+        </ol>
+    </div>
+    
+    <button class="btn" id="copyBtn">Copy Auto-Scroll Code</button>
+    
+    <h2>Manual Instructions</h2>
+    <p>If the button doesn't work, you can manually copy this code:</p>
+    <code id="codeBlock">javascript:(function(){if(document.getElementById('scroll-helper-container')){var container=document.getElementById('scroll-helper-container');if(container.style.display==='none'){container.style.display='flex';}else{container.style.display='none';}return;}let isScrolling=false;let scrollSpeed=1.0;let scrollSpeedLabel='Medium';let lastY=0;let startY=0;let startTime=0;let controlsTimeout;if(localStorage.getItem('scrollHelper_speed')){scrollSpeed=parseFloat(localStorage.getItem('scrollHelper_speed'));updateSpeedLabel();}const container=document.createElement('div');container.id='scroll-helper-container';container.style.cssText=`position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background-color:rgba(0,0,0,0.7);color:white;padding:10px 15px;border-radius:50px;z-index:999999;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:16px;display:flex;align-items:center;gap:15px;box-shadow:0 4px 10px rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:opacity 0.3s ease;`;const buttonStyle=`background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:5px;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;touch-action:manipulation;`;const playButton=document.createElement('button');playButton.innerHTML='&#9654;';playButton.style.cssText=buttonStyle;playButton.title='Start Scrolling';const pauseButton=document.createElement('button');pauseButton.innerHTML='&#10074;&#10074;';pauseButton.style.cssText=buttonStyle;pauseButton.style.display='none';pauseButton.title='Pause Scrolling';const speedDownButton=document.createElement('button');speedDownButton.innerHTML='&#8722;';speedDownButton.style.cssText=buttonStyle;speedDownButton.title='Decrease Speed';const speedInfo=document.createElement('div');speedInfo.innerHTML=`${scrollSpeedLabel}`;speedInfo.style.cssText=`min-width:70px;text-align:center;font-weight:bold;`;const speedUpButton=document.createElement('button');speedUpButton.innerHTML='&#43;';speedUpButton.style.cssText=buttonStyle;speedUpButton.title='Increase Speed';const topButton=document.createElement('button');topButton.innerHTML='&#8593;';topButton.style.cssText=buttonStyle;topButton.title='Back to Top';const closeButton=document.createElement('button');closeButton.innerHTML='&#10005;';closeButton.style.cssText=buttonStyle;closeButton.title='Close Auto-Scroll';container.appendChild(speedDownButton);container.appendChild(speedInfo);container.appendChild(speedUpButton);container.appendChild(playButton);container.appendChild(pauseButton);container.appendChild(topButton);container.appendChild(closeButton);document.body.appendChild(container);function updateSpeedLabel(){if(scrollSpeed<=0.5){scrollSpeedLabel='Very Slow';}else if(scrollSpeed<=1.0){scrollSpeedLabel='Slow';}else if(scrollSpeed<=2.0){scrollSpeedLabel='Medium';}else if(scrollSpeed<=3.0){scrollSpeedLabel='Fast';}else{scrollSpeedLabel='Very Fast';}speedInfo.innerHTML=scrollSpeedLabel;localStorage.setItem('scrollHelper_speed',scrollSpeed.toString());}let lastTimestamp=0;function scrollAnimation(timestamp){if(!isScrolling)return;if(!lastTimestamp)lastTimestamp=timestamp;const deltaTime=timestamp-lastTimestamp;lastTimestamp=timestamp;window.scrollBy(0,scrollSpeed*(deltaTime/16));requestAnimationFrame(scrollAnimation);}function startScrolling(){if(!isScrolling){isScrolling=true;lastTimestamp=0;playButton.style.display='none';pauseButton.style.display='flex';requestAnimationFrame(scrollAnimation);}}function stopScrolling(){isScrolling=false;playButton.style.display='flex';pauseButton.style.display='none';}function increaseSpeed(){scrollSpeed+=0.5;if(scrollSpeed>5)scrollSpeed=5;updateSpeedLabel();}function decreaseSpeed(){scrollSpeed-=0.5;if(scrollSpeed<0.5)scrollSpeed=0.5;updateSpeedLabel();}playButton.addEventListener('click',startScrolling);pauseButton.addEventListener('click',stopScrolling);speedUpButton.addEventListener('click',increaseSpeed);speedDownButton.addEventListener('click',decreaseSpeed);topButton.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});closeButton.addEventListener('click',function(){if(isScrolling)stopScrolling();document.body.removeChild(container);});let controlsVisible=true;function showControls(){container.style.opacity='1';controlsVisible=true;clearTimeout(controlsTimeout);controlsTimeout=setTimeout(hideControls,3000);}function hideControls(){if(isScrolling){container.style.opacity='0.2';controlsVisible=false;}}showControls();window.addEventListener('scroll',function(){if(!isScrolling){showControls();}});container.addEventListener('mouseenter',showControls);container.addEventListener('mouseleave',function(){if(isScrolling){controlsTimeout=setTimeout(hideControls,3000);}});let touchCount=0;document.addEventListener('touchstart',function(e){touchCount++;if(touchCount===1){startY=e.touches[0].clientY;startTime=Date.now();}setTimeout(function(){touchCount=0;},400);});document.addEventListener('touchend',function(e){const deltaY=lastY-startY;const deltaTime=Date.now()-startTime;if(touchCount===2&&deltaTime<400){if(isScrolling){stopScrolling();}else{startScrolling();}e.preventDefault();touchCount=0;}if(Math.abs(deltaY)>50&&deltaTime<300){if(deltaY<0){increaseSpeed();}else{decreaseSpeed();}e.preventDefault();}});document.addEventListener('touchmove',function(e){showControls();lastY=e.touches[0].clientY;});const tapOverlay=document.createElement('div');tapOverlay.style.cssText=`position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;display:none;`;document.body.appendChild(tapOverlay);function handleTap(e){if(e.target.closest('#scroll-helper-container'))return;if(isScrolling){stopScrolling();}else{startScrolling();}showControls();e.preventDefault();}document.addEventListener('click',handleTap);const instructionDiv=document.createElement('div');instructionDiv.style.cssText=`position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:rgba(0,0,0,0.8);color:white;padding:20px;border-radius:10px;max-width:300px;text-align:center;z-index:1000000;font-family:-apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 5px 15px rgba(0,0,0,0.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);`;instructionDiv.innerHTML=`<h3 style="margin-top:0;">Auto-Scroll Ready</h3><p>• Tap screen to play/pause</p><p>• Swipe up/down to change speed</p><p>• Double-tap for play/pause</p><button id="got-it-btn" style="background:white;color:black;border:none;padding:8px 16px;border-radius:20px;font-weight:bold;margin-top:10px;">Got it</button>`;document.body.appendChild(instructionDiv);document.getElementById('got-it-btn').addEventListener('click',function(){document.body.removeChild(instructionDiv);});setTimeout(function(){if(document.body.contains(instructionDiv)){document.body.removeChild(instructionDiv);}},5000);})();</code>
+    
+    <script>
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const code = document.getElementById('codeBlock').textContent;
+            
+            // Create a temporary input element
+            const tempInput = document.createElement('textarea');
+            tempInput.value = code;
+            document.body.appendChild(tempInput);
+            
+            // Select and copy the text
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand('copy');
+            
+            // Remove the temporary element
+            document.body.removeChild(tempInput);
+            
+            // Update button text
+            this.textContent = 'Copied! Now go to your article';
+            setTimeout(() => {
+                this.textContent = 'Copy Auto-Scroll Code';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
